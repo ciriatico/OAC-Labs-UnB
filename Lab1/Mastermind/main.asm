@@ -6,9 +6,10 @@ KEY: 0,0,0,0
 TRIES: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 BLACK_PINS: 0
 WHITE_PINS: 0
+NUM_TRIES: 0
 
 BREAK_LINE: .string "\n"
-ENTRADA: .string "Insira a próxima cor\n"
+ENTRADA: .string "Insira a proxima cor\n"
 BLANK: .string " "
 
 .text
@@ -35,11 +36,11 @@ GEN_COLOR:
 la t0 PRE_KEY
 li t4 4 # max counter
 li t3 0 # counter
-li a7 42  
+li a7 42
 mv a1 s0
 GEN_PRE_KEY:
 	ecall
-	la t2 PRE_KEY 
+	la t2 PRE_KEY
 	li t5 0 #subcounter
 	
 	CHECK_UNICITY:
@@ -133,6 +134,11 @@ END_GEN_KEY:
 			li a7 5
 			ecall
 			la s1 TRIES
+			la s2 NUM_TRIES
+			lw s2 0(s2)
+			slli s2 s2 2
+			slli s3 s2 2
+			add s1 s1 s3 # pular de 4 em 4 nas tentativas
 			CHECK_UNICITY_TRY:
 				lw s2 0(s1) # carregar prox prekey em s2
 				beq a0 s2 TRY_LOOP # if a0 in PRE_KEYS: gen new index
@@ -141,6 +147,7 @@ END_GEN_KEY:
 				blt t5 s0 CHECK_UNICITY_TRY # if a0 not in PRE_KEYS: store index in PRE_KEY
 			la s1 TRIES
 			add s1 s1 t2
+			add s1 s1 s3
 			sw a0 0(s1)
 			
 			# Check if guess matches
@@ -161,8 +168,8 @@ END_GEN_KEY:
 				li t5 4
 				la s5 KEY
 				CHECK_LOOP:
-					lw t5 0(s5)
-					beq a0 t5 ADD_WHITE_PIN
+					lw t6 0(s5)
+					beq a0 t6 ADD_WHITE_PIN
 					addi t3 t3 1
 					addi s5 s5 4
 					blt t3 t5 CHECK_LOOP
@@ -174,6 +181,7 @@ END_GEN_KEY:
 			INCREMENT:
 			addi t0 t0 1
 			addi t2 t2 4
+			li t1 4
 			blt t0 t1 TRY_LOOP
 		
 		# Gerar pinos pretos e brancos
@@ -216,6 +224,10 @@ END_GEN_KEY:
 		
 		addi s9 s9 1
 		addi s11 s11 1
+		la t0 NUM_TRIES
+		lw t1 0(t0)
+		addi t1 t1 1
+		sw t1 0(t0)
 		blt s9 s10 MASTERMIND
 	
 	
