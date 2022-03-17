@@ -10,6 +10,7 @@ NUM_TRIES: 0
 
 BREAK_LINE: .string "\n"
 ENTRADA: .string "Insira a proxima cor\n"
+WIN_MESSAGE: .string "Parabens, voce venceu!\n"
 BLANK: .string " "
 
 .text
@@ -24,7 +25,7 @@ la a0 BREAK_LINE
 ecall
 
 li t4 0
-li s1 0x10 # color
+li s1 0x02 # color
 la t0 COLORS
 GEN_COLOR:
 	sw s1, 0(t0) # store color in color list
@@ -101,9 +102,16 @@ END_GEN_KEY:
 	li s9 0 # num tries
 	
 	MASTERMIND:
+		# reset black & white pins
+		la t0 BLACK_PINS
+		sw zero 0(t0)
+		la t0 WHITE_PINS
+		sw zero 0(t0)
+
+		# TURN INTO RENDER
 		# show all colors
 		la s1 COLORS
-		li t0 0 # contador
+		li t0 1 # contador
 		MOSTRAR_CORES:
 			li a7 1
 			lw a0 0(s1)
@@ -184,6 +192,7 @@ END_GEN_KEY:
 			li t1 4
 			blt t0 t1 TRY_LOOP
 		
+		# TURN INTO RENDER
 		# Gerar pinos pretos e brancos
 		# Mostrar pinos
 		li a7 1
@@ -204,6 +213,7 @@ END_GEN_KEY:
 		li a7 4
 		ecall
 		
+		# TURN INTO RENDER
 		# Mostra as tentativas
 		la s1 TRIES
 		li t0 0 # contador
@@ -228,8 +238,17 @@ END_GEN_KEY:
 		lw t1 0(t0)
 		addi t1 t1 1
 		sw t1 0(t0)
+
+		la t0 BLACK_PINS
+		lw t1 0(t0)
+		li t2 4
+		beq t1 t2 WIN
+		
 		blt s9 s10 MASTERMIND
 	
-	
+	WIN:
+	li a7 4
+	la a0 WIN_MESSAGE
+	ecall
 	li a7,10
 	ecall
