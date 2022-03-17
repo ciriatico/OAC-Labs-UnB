@@ -22,6 +22,14 @@ NOTAS: .word 77,130,76,130,73,130,72,130,73,130,72,130,71,130,73,130,72,391,67,3
 .text
 
 GAME_START:
+	# add lvl by 1
+    la t0 LEVEL
+    lw t1 0(t0)
+    addi t1 t1 1
+    sw t1 0(t0)
+
+DEFEAT:
+
     # Clear vectors
 
     # NUM_TRIES
@@ -53,12 +61,6 @@ GAME_START:
         addi t2 t2 4
         addi t0 t0 1
         blt t0 t1 CLEAR_TRIES
-
-    # add lvl by 1
-    la t0 LEVEL
-    lw t1 0(t0)
-    addi t1 t1 1
-    sw t1 0(t0)
 
     # --------------------------------------------------
     # generate keys
@@ -123,7 +125,7 @@ GAME_START:
         sw t2 0(t0) # append to KEY
         mv a0 t2
         li a7 1
-        ecall
+        #ecall
         addi t0 t0 4
         j _STORE
 
@@ -420,7 +422,8 @@ SKIP_PINS_RENDER:
     lw t3 0(t3)
     li t4 40    
     blt t3 t4 GAME_LOOP
-	
+	beq t3 t4 DEFEAT
+
 WIN:
 	
 	# Victory music
@@ -439,7 +442,7 @@ WIN:
 	blt t1 t0 LOOP_MUSICA
 	
     j GAME_START
-j GAME_LOOP
+
 # render image
 # image label ->a0
 
